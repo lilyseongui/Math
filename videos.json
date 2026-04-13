@@ -1,0 +1,28 @@
+{
+  "subjects": [
+    {
+      "name": "벡터",
+      "urls": [
+        "https://www.youtube.com/watch?v=Fh9vBLIcuj4"
+      ]
+    },
+    {
+      "name": "미분",
+      "urls": [
+        "https://www.youtube.com/watch?v=WVgJzNtJh-w&t=322s"
+      ]
+    },
+    {
+      "name": "적분",
+      "urls": [
+        "https://www.youtube.com/watch?v=UaIPRdKm7ME&t=70s"
+      ]
+    },
+    {
+      "name": "확률과통계",
+      "urls": [
+        "https://www.youtube.com/watch?v=-HtsNI3Jd2A"
+      ]
+    }
+  ]
+}

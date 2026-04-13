@@ -1,0 +1,1 @@
+# Release shrink is disabled for now. Keep this file so Gradle release config resolves cleanly.

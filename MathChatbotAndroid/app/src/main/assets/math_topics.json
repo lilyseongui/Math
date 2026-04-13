@@ -1,0 +1,99 @@
+{
+  "generatedAt": "bootstrap",
+  "topicCount": 4,
+  "videoCount": 4,
+  "topics": [
+    {
+      "name": "벡터",
+      "videos": [
+        {
+          "topic": "벡터",
+          "displayTitle": "벡터",
+          "sourceUrl": "https://www.youtube.com/watch?v=Fh9vBLIcuj4",
+          "videoId": "Fh9vBLIcuj4",
+          "language": "",
+          "languageCode": "",
+          "isGenerated": false,
+          "spellcheck": {
+            "applied": false,
+            "reason": "파이프라인 실행 전 기본 자산"
+          },
+          "snippetCount": 0,
+          "searchText": "",
+          "transcriptText": "",
+          "checkedText": "",
+          "snippets": []
+        }
+      ]
+    },
+    {
+      "name": "미분",
+      "videos": [
+        {
+          "topic": "미분",
+          "displayTitle": "미분",
+          "sourceUrl": "https://www.youtube.com/watch?v=WVgJzNtJh-w&t=322s",
+          "videoId": "WVgJzNtJh-w",
+          "language": "",
+          "languageCode": "",
+          "isGenerated": false,
+          "spellcheck": {
+            "applied": false,
+            "reason": "파이프라인 실행 전 기본 자산"
+          },
+          "snippetCount": 0,
+          "searchText": "",
+          "transcriptText": "",
+          "checkedText": "",
+          "snippets": []
+        }
+      ]
+    },
+    {
+      "name": "적분",
+      "videos": [
+        {
+          "topic": "적분",
+          "displayTitle": "적분",
+          "sourceUrl": "https://www.youtube.com/watch?v=UaIPRdKm7ME&t=70s",
+          "videoId": "UaIPRdKm7ME",
+          "language": "",
+          "languageCode": "",
+          "isGenerated": false,
+          "spellcheck": {
+            "applied": false,
+            "reason": "파이프라인 실행 전 기본 자산"
+          },
+          "snippetCount": 0,
+          "searchText": "",
+          "transcriptText": "",
+          "checkedText": "",
+          "snippets": []
+        }
+      ]
+    },
+    {
+      "name": "확률과통계",
+      "videos": [
+        {
+          "topic": "확률과통계",
+          "displayTitle": "확률과통계",
+          "sourceUrl": "https://www.youtube.com/watch?v=-HtsNI3Jd2A",
+          "videoId": "-HtsNI3Jd2A",
+          "language": "",
+          "languageCode": "",
+          "isGenerated": false,
+          "spellcheck": {
+            "applied": false,
+            "reason": "파이프라인 실행 전 기본 자산"
+          },
+          "snippetCount": 0,
+          "searchText": "",
+          "transcriptText": "",
+          "checkedText": "",
+          "snippets": []
+        }
+      ]
+    }
+  ]
+}

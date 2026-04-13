@@ -1,0 +1,6 @@
+.env
+generated/
+MathChatbotAndroid/.gradle/
+MathChatbotAndroid/app/build/
+MathChatbotAndroid/build/
+MathChatbotAndroid/local.properties

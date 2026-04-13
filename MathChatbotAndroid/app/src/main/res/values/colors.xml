@@ -1,0 +1,9 @@
+<resources>
+    <color name="chat_background">#F4F1EA</color>
+    <color name="title_color">#1B1D21</color>
+    <color name="subtitle_color">#6E7075</color>
+    <color name="user_bubble">#1C7C54</color>
+    <color name="bot_bubble">#FFF8E7</color>
+    <color name="input_bg">#FFFFFF</color>
+    <color name="send_button">#D95D39</color>
+</resources>
