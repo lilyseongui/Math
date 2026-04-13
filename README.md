@@ -13,12 +13,21 @@ pip install -r requirements.txt
 
 ## 프록시 설정
 
-같은 폴더에 `.env` 파일을 만들고 Webshare 정보를 넣습니다.
+같은 폴더에 `.env` 파일을 만들고 Webshare 정보와 GPT 맞춤법 검사에 쓸 OpenAI API 정보를 넣습니다.
 
 ```env
+YTT_PROXY_MODE=webshare
 WEBSHARE_PROXY_USERNAME=여기에_아이디
 WEBSHARE_PROXY_PASSWORD=여기에_비밀번호
+WEBSHARE_PROXY_HOST=
+WEBSHARE_PROXY_PORT=
+OPENAI_API_KEY=여기에_API_키
+OPENAI_MODEL=gpt-4o
 ```
+
+- `YTT_PROXY_MODE=webshare`: `WebshareProxyConfig` 사용
+- `YTT_PROXY_MODE=generic`: `GenericProxyConfig` 사용
+- `generic` 모드에서는 `WEBSHARE_PROXY_HOST`, `WEBSHARE_PROXY_PORT` 를 함께 넣습니다.
 
 ## 입력 파일
 
@@ -41,6 +50,18 @@ WEBSHARE_PROXY_PASSWORD=여기에_비밀번호
 
 ```bash
 python extract_and_check.py
+```
+
+기본값은 `GPT` 맞춤법 검사를 사용합니다. API 키가 없으면 `--spellcheck-engine hanspell` 또는 `--spellcheck-engine none` 으로 바꿔 실행할 수 있습니다.
+
+```bash
+python extract_and_check.py --spellcheck-engine gpt
+```
+
+개별 프록시 IP:PORT를 직접 테스트하려면:
+
+```bash
+python extract_and_check.py --single --proxy-mode generic --proxy-host 31.59.20.176 --proxy-port 6754 --spellcheck-engine none
 ```
 
 실행 결과:

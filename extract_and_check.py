@@ -12,7 +12,12 @@ from urllib.parse import parse_qs, urlparse
 
 from dotenv import load_dotenv
 from youtube_transcript_api import YouTubeTranscriptApi
-from youtube_transcript_api.proxies import WebshareProxyConfig
+from youtube_transcript_api.proxies import GenericProxyConfig, WebshareProxyConfig
+
+try:
+    from openai import OpenAI
+except ImportError:
+    OpenAI = None
 
 try:
     from hanspell import spell_checker
@@ -27,8 +32,14 @@ DEFAULT_GENERATED_DIR = Path(__file__).with_name("generated")
 DEFAULT_ANDROID_ASSETS_DIR = (
     Path(__file__).with_name("MathChatbotAndroid") / "app" / "src" / "main" / "assets"
 )
+DEFAULT_TRANSCRIPT_LANGUAGES = ["ko", "en"]
+PROXY_MODE_ENV = "YTT_PROXY_MODE"
 PROXY_USERNAME_ENV = "WEBSHARE_PROXY_USERNAME"
 PROXY_PASSWORD_ENV = "WEBSHARE_PROXY_PASSWORD"
+PROXY_HOST_ENV = "WEBSHARE_PROXY_HOST"
+PROXY_PORT_ENV = "WEBSHARE_PROXY_PORT"
+OPENAI_API_KEY_ENV = "OPENAI_API_KEY"
+OPENAI_MODEL_ENV = "OPENAI_MODEL"
 
 
 @dataclass
@@ -64,7 +75,22 @@ def sanitize_path_name(name: str) -> str:
     return normalized or "untitled"
 
 
-def build_transcript_api() -> YouTubeTranscriptApi:
+def build_transcript_api(proxy_mode: str | None = None) -> YouTubeTranscriptApi:
+    """
+    proxy_mode 값에 따라 YouTubeTranscriptApi 인스턴스를 반환합니다.
+      - "none"     : 프록시 없이 직접 연결 (YouTubeTranscriptApi())
+      - "generic"  : GenericProxyConfig(http_url, https_url) 사용
+      - "webshare" : WebshareProxyConfig(proxy_username, proxy_password) 사용
+                     ※ Webshare "Residential" 요금제만 지원됩니다.
+                       (Proxy Server / Static Residential 불가)
+    """
+    if proxy_mode is None:
+        proxy_mode = os.getenv(PROXY_MODE_ENV, "none").strip().lower()
+
+    # 프록시 없이 직접 연결
+    if proxy_mode == "none":
+        return YouTubeTranscriptApi()
+
     proxy_username = os.getenv(PROXY_USERNAME_ENV)
     proxy_password = os.getenv(PROXY_PASSWORD_ENV)
 
@@ -73,6 +99,22 @@ def build_transcript_api() -> YouTubeTranscriptApi:
             f"프록시 정보가 없습니다. {PROXY_USERNAME_ENV} 와 {PROXY_PASSWORD_ENV} 를 설정하세요."
         )
 
+    if proxy_mode == "generic":
+        proxy_host = os.getenv(PROXY_HOST_ENV)
+        proxy_port = os.getenv(PROXY_PORT_ENV)
+        if not proxy_host or not proxy_port:
+            raise RuntimeError(
+                f"Generic 프록시 모드에는 {PROXY_HOST_ENV} 와 {PROXY_PORT_ENV} 가 필요합니다."
+            )
+        proxy_url = f"http://{proxy_username}:{proxy_password}@{proxy_host}:{proxy_port}"
+        return YouTubeTranscriptApi(
+            proxy_config=GenericProxyConfig(
+                http_url=proxy_url,
+                https_url=proxy_url,
+            )
+        )
+
+    # webshare — Residential 요금제 전용
     return YouTubeTranscriptApi(
         proxy_config=WebshareProxyConfig(
             proxy_username=proxy_username,
@@ -116,7 +158,7 @@ def split_text_for_spellcheck(text: str, max_length: int = 450) -> list[str]:
     return chunks
 
 
-def run_spell_check(text: str, language_code: str) -> tuple[str, dict[str, object]]:
+def run_hanspell_spell_check(text: str, language_code: str) -> tuple[str, dict[str, object]]:
     if not language_code.lower().startswith("ko"):
         return text, {
             "applied": False,
@@ -138,6 +180,72 @@ def run_spell_check(text: str, language_code: str) -> tuple[str, dict[str, objec
         "applied": True,
         "reason": "한국어 자막에 대해 py-hanspell 검사 완료",
     }
+
+
+def run_gpt_spell_check(text: str, language_code: str) -> tuple[str, dict[str, object]]:
+    if not language_code.lower().startswith("ko"):
+        return text, {
+            "applied": False,
+            "reason": f"한국어 자막이 아니어서 GPT 맞춤법 검사를 건너뜀 ({language_code})",
+        }
+
+    if OpenAI is None:
+        return text, {
+            "applied": False,
+            "reason": "openai 패키지가 없어 GPT 맞춤법 검사를 실행할 수 없음",
+        }
+
+    api_key = os.getenv(OPENAI_API_KEY_ENV)
+    if not api_key:
+        return text, {
+            "applied": False,
+            "reason": f"{OPENAI_API_KEY_ENV} 가 없어 GPT 맞춤법 검사를 실행할 수 없음",
+        }
+
+    model = os.getenv(OPENAI_MODEL_ENV, "gpt-4o")
+    client = OpenAI(api_key=api_key, timeout=60.0)  # 60초 타임아웃
+
+    chunks = split_text_for_spellcheck(text, max_length=1200)
+    corrected_chunks: list[str] = []
+    for i, chunk in enumerate(chunks, 1):
+        print(f"  GPT 맞춤법 검사 청크 {i}/{len(chunks)} ...")
+        response = client.responses.create(
+            model=model,
+            instructions=(
+                "당신은 한국어 자막 맞춤법 교정기다. 의미를 바꾸지 말고 오탈자, 띄어쓰기, 문장부호만 교정하라. "
+                "설명 없이 교정된 본문만 반환하라."
+            ),
+            input=chunk,
+        )
+        corrected_chunks.append(response.output_text.strip())
+
+    return "\n\n".join(corrected_chunks), {
+        "applied": True,
+        "reason": f"OpenAI {model} 로 한국어 자막 맞춤법 검사 완료",
+    }
+
+
+def run_spell_check(text: str, language_code: str, engine: str) -> tuple[str, dict[str, object]]:
+    if engine == "none":
+        return text, {
+            "applied": False,
+            "reason": "맞춤법 검사를 사용하지 않도록 설정됨",
+        }
+
+    if engine == "gpt":
+        corrected_text, metadata = run_gpt_spell_check(text, language_code)
+        if not metadata["applied"]:
+            raise RuntimeError(str(metadata["reason"]))
+        return corrected_text, metadata
+
+    if engine == "hanspell":
+        return run_hanspell_spell_check(text, language_code)
+
+    corrected_text, metadata = run_gpt_spell_check(text, language_code)
+    if metadata["applied"]:
+        return corrected_text, metadata
+
+    return run_hanspell_spell_check(text, language_code)
 
 
 def build_video_payload(
@@ -242,10 +350,19 @@ def load_video_jobs(config_path: Path) -> list[VideoJob]:
     return jobs
 
 
-def process_single_video(ytt_api: YouTubeTranscriptApi, job: VideoJob, base_output_dir: Path) -> dict[str, object]:
-    transcript = ytt_api.fetch(job.video_id)
+def process_single_video(
+    ytt_api: YouTubeTranscriptApi,
+    job: VideoJob,
+    base_output_dir: Path,
+    spellcheck_engine: str,
+) -> dict[str, object]:
+    transcript = ytt_api.fetch(job.video_id, languages=DEFAULT_TRANSCRIPT_LANGUAGES)
     transcript_text = transcript_to_text(transcript)
-    checked_text, spellcheck_meta = run_spell_check(transcript_text, transcript.language_code)
+    checked_text, spellcheck_meta = run_spell_check(
+        transcript_text,
+        transcript.language_code,
+        spellcheck_engine,
+    )
     payload = build_video_payload(job, transcript, transcript_text, checked_text, spellcheck_meta)
     save_video_outputs(base_output_dir, payload)
     return payload
@@ -256,11 +373,12 @@ def process_batch(
     jobs: list[VideoJob],
     generated_dir: Path,
     android_assets_dir: Path | None,
+    spellcheck_engine: str,
 ) -> None:
     topic_map: dict[str, list[dict[str, object]]] = {}
     for job in jobs:
         print(f"처리 중: {job.topic} / {job.source_url}")
-        payload = process_single_video(ytt_api, job, generated_dir / "topics")
+        payload = process_single_video(ytt_api, job, generated_dir / "topics", spellcheck_engine)
         topic_map.setdefault(job.topic, []).append(payload)
 
     topic_payloads = [
@@ -309,6 +427,28 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="config 대신 --url 기준으로 단일 영상만 처리",
     )
+    parser.add_argument(
+        "--proxy-mode",
+        choices=["none", "webshare", "generic"],
+        default=None,
+        help="프록시 모드 선택 (none/webshare/generic). 기본값은 none (직접 연결)",
+    )
+    parser.add_argument(
+        "--proxy-host",
+        default=None,
+        help="generic 모드에서 사용할 프록시 IP 또는 호스트",
+    )
+    parser.add_argument(
+        "--proxy-port",
+        default=None,
+        help="generic 모드에서 사용할 프록시 포트",
+    )
+    parser.add_argument(
+        "--spellcheck-engine",
+        choices=["gpt", "hanspell", "auto", "none"],
+        default="gpt",
+        help="맞춤법 검사 엔진 선택. 기본값은 gpt",
+    )
     return parser.parse_args()
 
 
@@ -316,13 +456,20 @@ def main() -> None:
     args = parse_args()
     load_dotenv(args.env_file)
 
+    if args.proxy_mode:
+        os.environ[PROXY_MODE_ENV] = args.proxy_mode
+    if args.proxy_host:
+        os.environ[PROXY_HOST_ENV] = args.proxy_host
+    if args.proxy_port:
+        os.environ[PROXY_PORT_ENV] = args.proxy_port
+
     generated_dir = Path(args.generated_dir)
     android_assets_dir = Path(args.android_assets_dir)
     ytt_api = build_transcript_api()
 
     if args.single:
         job = VideoJob(topic="default", source_url=args.url, video_id=extract_video_id(args.url))
-        payload = process_single_video(ytt_api, job, generated_dir / "single")
+        payload = process_single_video(ytt_api, job, generated_dir / "single", args.spellcheck_engine)
         write_combined_outputs(
             generated_dir / "app_assets",
             [{"name": "default", "videos": [payload]}],
@@ -336,7 +483,7 @@ def main() -> None:
     if not jobs:
         raise RuntimeError("처리할 유튜브 URL이 없습니다. videos.json 내용을 확인하세요.")
 
-    process_batch(ytt_api, jobs, generated_dir, android_assets_dir)
+    process_batch(ytt_api, jobs, generated_dir, android_assets_dir, args.spellcheck_engine)
 
 
 if __name__ == "__main__":

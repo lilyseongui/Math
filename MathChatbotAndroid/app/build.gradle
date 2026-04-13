@@ -3,21 +3,70 @@ plugins {
     alias(libs.plugins.kotlin.android)
 }
 
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withInputStream { stream ->
+        localProperties.load(stream)
+    }
+}
+
+def readSecret = { String key ->
+    def localValue = localProperties.getProperty(key)
+    if (localValue != null && !localValue.trim().isEmpty()) {
+        return localValue.trim()
+    }
+
+    def envValue = System.getenv(key)
+    if (envValue != null && !envValue.trim().isEmpty()) {
+        return envValue.trim()
+    }
+
+    return null
+}
+
+def releaseStoreFile = readSecret('RELEASE_STORE_FILE')
+def releaseKeyAlias = readSecret('RELEASE_KEY_ALIAS')
+def releaseStorePassword = readSecret('RELEASE_STORE_PASSWORD')
+def releaseKeyPassword = readSecret('RELEASE_KEY_PASSWORD')
+def hasReleaseSigning = [
+    releaseStoreFile,
+    releaseKeyAlias,
+    releaseStorePassword,
+    releaseKeyPassword,
+].every { value -> value != null }
+
 android {
     namespace 'com.example.mathchatbot'
     compileSdk 34
+
+    if (hasReleaseSigning) {
+        signingConfigs {
+            release {
+                storeFile file(releaseStoreFile)
+                storePassword releaseStorePassword
+                keyAlias releaseKeyAlias
+                keyPassword releaseKeyPassword
+            }
+        }
+    }
 
     defaultConfig {
         applicationId "com.example.mathchatbot"
         minSdk 26
         targetSdk 34
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "1.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
+            if (hasReleaseSigning) {
+                signingConfig signingConfigs.release
+            } else {
+                println('Release signing properties are missing. Building unsigned release APK.')
+            }
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
