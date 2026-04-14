@@ -1,4 +1,4 @@
-package com.example.mathchatbot
+﻿package com.example.mathchatbot
 
 import android.os.Bundle
 import android.view.inputmethod.EditorInfo
@@ -253,10 +253,20 @@ class MainActivity : AppCompatActivity() {
                 append("\n")
                 append(match.snippet.text)
                 append("\n링크: ")
-                append(match.sourceUrl)
+                append(buildTimestampUrl(match.sourceUrl, match.snippet.start))
                 append("\n\n")
             }
         }.trim()
+    }
+
+    private fun buildTimestampUrl(sourceUrl: String, startSeconds: Double): String {
+        val seconds = startSeconds.toInt()
+        val cleaned = sourceUrl
+            .replace(Regex("""&t=[^&#]*"""), "")
+            .replace(Regex("""\?t=[^&#]*&"""), "?")
+            .replace(Regex("""\?t=[^&#]*$"""), "")
+        val connector = if (cleaned.contains("?")) "&" else "?"
+        return "${cleaned}${connector}t=${seconds}s"
     }
 
     private fun tokenize(query: String): List<String> {

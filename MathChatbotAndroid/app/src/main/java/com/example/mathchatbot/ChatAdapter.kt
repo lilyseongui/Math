@@ -1,5 +1,7 @@
 package com.example.mathchatbot
 
+import android.text.method.LinkMovementMethod
+import android.text.util.Linkify
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -29,6 +31,10 @@ class ChatAdapter(
 
         fun bind(message: ChatMessage) {
             messageText.text = message.text
+            if (!message.isUser) {
+                Linkify.addLinks(messageText, Linkify.WEB_URLS)
+                messageText.movementMethod = LinkMovementMethod.getInstance()
+            }
         }
     }
 }

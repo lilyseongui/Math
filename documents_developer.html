@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>documents_developer</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      white-space: pre-wrap;
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+</head>
+<body>
+<h1 id="math-개발자-api-문서">MATH 개발자 API 문서</h1>
+<h2 id="시스템-흐름">시스템 흐름</h2>
+<ul>
+<li>파이프라인: videos.json -&gt; extract_and_check.py -&gt;
+generated/app_assets/math_topics.json</li>
+<li>앱: app/src/main/assets/math_topics.json 로드 -&gt; 로컬 검색 -&gt;
+결과 링크 출력</li>
+</ul>
+<p>핵심 연결점: - Python이 생성한 searchText, snippets, sourceUrl 필드를
+Android가 그대로 소비합니다. - 교정 결과가 searchText 로 들어가므로 검색
+품질은 파이프라인 단계에서 결정됩니다.</p>
+<h2 id="python-api">Python API</h2>
+<p>대상 파일: extract_and_check.py</p>
+<h3 id="데이터-모델">데이터 모델</h3>
+<h4 id="videojob">VideoJob</h4>
+<p>역할: - 영상 1개 처리 단위를 표현하는 dataclass</p>
+<p>필드: - topic: 과목명 - source_url: 원본 YouTube URL - video_id:
+추출된 영상 ID</p>
+<h3 id="유틸리티-함수">유틸리티 함수</h3>
+<h4
+id="extract_video_idvideo_input-str---str">extract_video_id(video_input:
+str) -&gt; str</h4>
+<p>역할: - YouTube URL 또는 11자리 videoId 입력에서 최종 videoId 를
+추출</p>
+<p>지원 입력: - watch URL - youtu.be 단축 URL - shorts URL - embed URL -
+live URL - 11자리 videoId 문자열</p>
+<p>예외: - 유효한 형식이 아니면 ValueError 발생</p>
+<h4 id="sanitize_path_namename-str---str">sanitize_path_name(name: str)
+-&gt; str</h4>
+<p>역할: - 파일 시스템에 안전한 폴더명으로 정규화</p>
+<p>세부 동작: - Windows 금지 문자  / : * ? ” &lt; &gt; | 를 _ 로 치환 -
+빈 문자열이면 untitled 반환</p>
+<h4
+id="transcript_to_textsnippets-iterableobject---str">transcript_to_text(snippets:
+Iterable[object]) -&gt; str</h4>
+<p>역할: - transcript 스니펫 리스트를 줄바꿈 문자열로 변환</p>
+<p>입력 기대값: - 각 요소가 text 속성을 가져야 함</p>
+<h4
+id="split_text_for_spellchecktext-str-max_length-int-450---liststr">split_text_for_spellcheck(text:
+str, max_length: int = 450) -&gt; list[str]</h4>
+<p>역할: - 긴 텍스트를 맞춤법 교정용 청크로 분할</p>
+<p>규칙: - 빈 줄 제거 - 줄 단위 누적 - max_length 초과 시 새 청크
+시작</p>
+<h3 id="자막-api-및-프록시">자막 API 및 프록시</h3>
+<h4
+id="build_transcript_apiproxy_mode-str-none-none---youtubetranscriptapi">build_transcript_api(proxy_mode:
+str | None = None) -&gt; YouTubeTranscriptApi</h4>
+<p>역할: - 프록시 설정을 반영한 YouTubeTranscriptApi 인스턴스 생성</p>
+<p>지원 모드: - none: 프록시 없이 직접 연결 - generic:
+GenericProxyConfig 사용 - webshare: WebshareProxyConfig 사용</p>
+<p>환경 변수: - YTT_PROXY_MODE - WEBSHARE_PROXY_USERNAME -
+WEBSHARE_PROXY_PASSWORD - WEBSHARE_PROXY_HOST - WEBSHARE_PROXY_PORT</p>
+<p>실패 조건: - generic 또는 webshare 에 필요한 값이 없으면 RuntimeError
+발생</p>
+<h3 id="맞춤법-교정-api">맞춤법 교정 API</h3>
+<h4
+id="run_hanspell_spell_checktext-str-language_code-str---tuplestr-dictstr-object">run_hanspell_spell_check(text:
+str, language_code: str) -&gt; tuple[str, dict[str, object]]</h4>
+<p>역할: - 한국어 자막에 대해 py-hanspell 교정 수행</p>
+<p>반환값: - 1번째 값: 교정된 텍스트 또는 원문 - 2번째 값: applied,
+reason 을 포함한 메타데이터</p>
+<p>건너뛰는 조건: - language_code 가 ko 로 시작하지 않음 - hanspell
+패키지가 설치되지 않음</p>
+<h4
+id="run_gpt_spell_checktext-str-language_code-str---tuplestr-dictstr-object">run_gpt_spell_check(text:
+str, language_code: str) -&gt; tuple[str, dict[str, object]]</h4>
+<p>역할: - OpenAI Responses API 기반 한국어 자막 교정 수행</p>
+<p>환경 변수: - OPENAI_API_KEY - OPENAI_MODEL, 기본값 gpt-4o</p>
+<p>동작 특징: - max_length 1200 기준으로 청크 분할 - 청크별로 교정 후
+합침 - 의미 변경 없이 오탈자, 띄어쓰기, 문장부호만 교정하도록 지시</p>
+<p>건너뛰는 조건: - 한국어 자막이 아님 - openai 패키지가 없음 -
+OPENAI_API_KEY 가 없음</p>
+<h4
+id="run_spell_checktext-str-language_code-str-engine-str---tuplestr-dictstr-object">run_spell_check(text:
+str, language_code: str, engine: str) -&gt; tuple[str, dict[str,
+object]]</h4>
+<p>역할: - 맞춤법 교정 엔진 선택 진입점</p>
+<p>지원 엔진: - none - gpt - hanspell - auto</p>
+<p>중요 동작: - gpt 지정 시 GPT 적용 실패를 허용하지 않고 RuntimeError
+발생 - auto 지정 시 GPT 먼저 시도 후 실패하면 hanspell 폴백</p>
+<h3 id="데이터-생성-api">데이터 생성 API</h3>
+<h4
+id="build_video_payloadjob-videojob-transcript-object-transcript_text-str-checked_text-str-spellcheck_meta-dictstr-object---dictstr-object">build_video_payload(job:
+VideoJob, transcript: object, transcript_text: str, checked_text: str,
+spellcheck_meta: dict[str, object]) -&gt; dict[str, object]</h4>
+<p>역할: - 앱과 리포트에서 사용할 영상 단위 JSON 객체 생성</p>
+<p>주요 출력 필드: - topic - displayTitle - sourceUrl - videoId -
+language - languageCode - isGenerated - spellcheck - snippetCount -
+searchText - transcriptText - checkedText - snippets</p>
+<p>중요 규칙: - spellcheck.applied 가 true 면 searchText 에 checkedText
+저장 - 아니면 transcriptText 저장</p>
+<h4
+id="save_video_outputsbase_output_dir-path-payload-dictstr-object---none">save_video_outputs(base_output_dir:
+Path, payload: dict[str, object]) -&gt; None</h4>
+<p>역할: - 영상별 산출물을 디스크에 저장</p>
+<p>생성 파일: - transcript.json - transcript.txt -
+transcript_checked.txt - report.json</p>
+<p>저장 위치: - generated/topics/<topic>/<videoId>/…</p>
+<h4
+id="write_combined_outputsgenerated_dir-path-topics-listdictstr-object-android_assets_dir-path-none---none">write_combined_outputs(generated_dir:
+Path, topics: list[dict[str, object]], android_assets_dir: Path | None)
+-&gt; None</h4>
+<p>역할: - 앱용 통합 JSON 생성 및 Android assets 동기화</p>
+<p>생성 파일: - generated/app_assets/math_topics.json -
+MathChatbotAndroid/app/src/main/assets/math_topics.json</p>
+<p>최상위 필드: - generatedAt - topicCount - videoCount - topics</p>
+<h4
+id="load_video_jobsconfig_path-path---listvideojob">load_video_jobs(config_path:
+Path) -&gt; list<a href="#videojob">VideoJob</a></h4>
+<p>역할: - videos.json 을 읽어 VideoJob 리스트 생성</p>
+<p>허용 입력: - urls 는 배열 또는 문자열 1개 모두 허용</p>
+<p>제외 조건: - topic 이 비어 있음 - URL 이 비어 있음</p>
+<h4
+id="process_single_videoytt_api-youtubetranscriptapi-job-videojob-base_output_dir-path-spellcheck_engine-str---dictstr-object">process_single_video(ytt_api:
+YouTubeTranscriptApi, job: VideoJob, base_output_dir: Path,
+spellcheck_engine: str) -&gt; dict[str, object]</h4>
+<p>역할: - 영상 1개 전체 처리</p>
+<p>처리 단계: - 자막 fetch - 원문 텍스트 생성 - 맞춤법 교정 - payload
+생성 - 파일 저장</p>
+<h4
+id="process_batchytt_api-youtubetranscriptapi-jobs-listvideojob-generated_dir-path-android_assets_dir-path-none-spellcheck_engine-str---none">process_batch(ytt_api:
+YouTubeTranscriptApi, jobs: list<a href="#videojob">VideoJob</a>,
+generated_dir: Path, android_assets_dir: Path | None, spellcheck_engine:
+str) -&gt; None</h4>
+<p>역할: - 여러 영상을 순회 처리하고 topic 단위로 묶어 통합 JSON
+생성</p>
+<p>출력 로그: - 처리 중: <topic> / <url> - 과목 수: N - 영상 수: N</p>
+<h3 id="cli-api">CLI API</h3>
+<h4 id="parse_args---argparse.namespace">parse_args() -&gt;
+argparse.Namespace</h4>
+<p>지원 옵션: - –url - –config - –generated-dir - –android-assets-dir -
+–env-file - –single - –proxy-mode - –proxy-host - –proxy-port -
+–spellcheck-engine</p>
+<h4 id="main---none">main() -&gt; None</h4>
+<p>역할: - 환경 변수 로드, 인자 반영, API 초기화, 단일 또는 배치 실행
+분기 처리</p>
+<p>실행 분기: - –single 이면 generated/single 아래로 출력 - 기본값이면
+videos.json 배치 처리</p>
+<h2 id="android-api">Android API</h2>
+<p>대상 파일: - MainActivity.kt - ChatAdapter.kt - ChatMessage.kt</p>
+<h3 id="데이터-클래스">데이터 클래스</h3>
+<h4 id="chatmessage">ChatMessage</h4>
+<p>필드: - text: 메시지 본문 - isUser: 사용자 메시지 여부</p>
+<h4 id="mainactivity.snippet">MainActivity.Snippet</h4>
+<p>필드: - text - start - duration</p>
+<h4 id="mainactivity.videoentry">MainActivity.VideoEntry</h4>
+<p>필드: - topic - displayTitle - sourceUrl - videoId - searchText -
+snippets</p>
+<h4 id="mainactivity.topicentry">MainActivity.TopicEntry</h4>
+<p>필드: - name - videos</p>
+<h4 id="mainactivity.searchmatch">MainActivity.SearchMatch</h4>
+<p>필드: - topic - sourceUrl - snippet - score</p>
+<h3 id="화면-초기화-api">화면 초기화 API</h3>
+<h4 id="oncreatesavedinstancestate-bundle">onCreate(savedInstanceState:
+Bundle?)</h4>
+<p>역할: - 레이아웃 바인딩, RecyclerView 초기화, 자산 로드, 과목 칩
+생성, 초기 메시지 출력, 이벤트 연결</p>
+<p>초기화 대상 뷰: - titleText - recyclerView - editText - sendButton -
+subjectChipGroup</p>
+<h4 id="loadtopics---list">loadTopics() -&gt; List<TopicEntry></h4>
+<p>역할: - assets 의 math_topics.json 파싱</p>
+<p>입력 원천: - assets.open(“math_topics.json”)</p>
+<p>실패 처리: - 예외 발생 시 emptyList() 반환</p>
+<h4 id="rendertopicchips---unit">renderTopicChips() -&gt; Unit</h4>
+<p>역할: - 전체 칩과 과목별 칩을 ChipGroup 에 렌더링</p>
+<h4
+id="addtopicchiplabel-string-topicname-string-ischecked-boolean---unit">addTopicChip(label:
+String, topicName: String?, isChecked: Boolean) -&gt; Unit</h4>
+<p>역할: - Chip 하나를 생성하고 클릭 동작을 연결</p>
+<p>클릭 결과: - selectedTopic 갱신 - 범위 변경 안내 봇 메시지 추가 -
+스크롤 갱신</p>
+<h4 id="buildintromessage---string">buildIntroMessage() -&gt;
+String</h4>
+<p>역할: - 앱 시작 시 보여줄 안내 메시지 생성</p>
+<p>분기: - topics 가 비어 있으면 파이프라인 실행 안내 - 아니면 현재 과목
+목록 표시</p>
+<h3 id="검색-api">검색 API</h3>
+<h4 id="sendmessage---unit">sendMessage() -&gt; Unit</h4>
+<p>역할: - 입력값 검증, 사용자 메시지 추가, 키보드 숨김, 검색 결과
+메시지 추가</p>
+<h4 id="searchintopicsquery-string---string">searchInTopics(query:
+String) -&gt; String</h4>
+<p>역할: - 로컬 자막 검색의 핵심 함수</p>
+<p>전처리: - tokenize(query) - 선택 과목 필터 적용</p>
+<p>점수 규칙: - token in searchText: +2 - token in snippet.text: +5 -
+token in topic: +3</p>
+<p>정렬 규칙: - score 내림차순 - snippet.start 오름차순</p>
+<p>반환값: - 상위 3개 스니펫을 포함한 문자열 응답</p>
+<h4 id="tokenizequery-string---list">tokenize(query: String) -&gt;
+List<String></h4>
+<p>역할: - 검색용 토큰 생성</p>
+<p>규칙: - 전체 문장 normalize 결과를 토큰으로 추가 - 공백 분리 후 길이
+2 이상 토큰 추가 - 중복 제거</p>
+<h4 id="normalizevalue-string---string">normalize(value: String) -&gt;
+String</h4>
+<p>역할: - 검색 비교용 정규화</p>
+<p>규칙: - lowercase - 한글, 영문, 숫자를 제외한 문자 제거</p>
+<h4 id="formattimestampseconds-double---string">formatTimestamp(seconds:
+Double) -&gt; String</h4>
+<p>역할: - 초 단위를 MM:SS 문자열로 변환</p>
+<h4
+id="buildtimestampurlsourceurl-string-startseconds-double---string">buildTimestampUrl(sourceUrl:
+String, startSeconds: Double) -&gt; String</h4>
+<p>역할: - 기존 t 파라미터를 제거하고 새 타임스탬프 링크 생성</p>
+<p>출력 예: - https://www.youtube.com/watch?v=…&amp;t=143s</p>
+<h3 id="메시지-렌더링-api">메시지 렌더링 API</h3>
+<h4 id="addusermessagetext-string---unit">addUserMessage(text: String)
+-&gt; Unit</h4>
+<p>역할: - 사용자 메시지를 목록에 추가하고 RecyclerView 갱신</p>
+<h4 id="addbotmessagetext-string---unit">addBotMessage(text: String)
+-&gt; Unit</h4>
+<p>역할: - 봇 메시지를 목록에 추가하고 RecyclerView 갱신</p>
+<h4 id="refreshscroll---unit">refreshScroll() -&gt; Unit</h4>
+<p>역할: - 최신 메시지로 스크롤 이동</p>
+<h4
+id="chatadapter.oncreateviewholderparent-viewgroup-viewtype-int---messageviewholder">ChatAdapter.onCreateViewHolder(parent:
+ViewGroup, viewType: Int) -&gt; MessageViewHolder</h4>
+<p>역할: - 사용자/봇 메시지 타입에 맞는 레이아웃 inflate</p>
+<p>레이아웃 매핑: - 1 -&gt; item_message_user - 2 -&gt;
+item_message_bot</p>
+<h4
+id="chatadapter.onbindviewholderholder-messageviewholder-position-int---unit">ChatAdapter.onBindViewHolder(holder:
+MessageViewHolder, position: Int) -&gt; Unit</h4>
+<p>역할: - 지정 위치 메시지를 ViewHolder 에 바인딩</p>
+<h4
+id="chatadapter.getitemviewtypeposition-int---int">ChatAdapter.getItemViewType(position:
+Int) -&gt; Int</h4>
+<p>역할: - isUser 값에 따라 메시지 타입 반환</p>
+<h4
+id="chatadapter.messageviewholder.bindmessage-chatmessage---unit">ChatAdapter.MessageViewHolder.bind(message:
+ChatMessage) -&gt; Unit</h4>
+<p>역할: - 텍스트 바인딩 - 봇 메시지일 때 Linkify.WEB_URLS 및
+LinkMovementMethod 적용</p>
+<h2 id="자주-쓰는-명령">자주 쓰는 명령</h2>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 데이터 생성</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cd</span> c<span class="op">:/</span>Users<span class="op">/</span>User<span class="op">/</span>vibeCoding<span class="op">/</span>YOUTUBE<span class="op">/</span>MATH</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="op">&amp;</span> <span class="st">&quot;c:/Users/User/vibeCoding/.venv/Scripts/python.exe&quot;</span> extract_and_check<span class="op">.</span><span class="fu">py</span> <span class="op">--</span>proxy-mode none <span class="op">--</span>spellcheck-engine gpt</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 단일 영상 테스트</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">cd</span> c<span class="op">:/</span>Users<span class="op">/</span>User<span class="op">/</span>vibeCoding<span class="op">/</span>YOUTUBE<span class="op">/</span>MATH</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="op">&amp;</span> <span class="st">&quot;c:/Users/User/vibeCoding/.venv/Scripts/python.exe&quot;</span> extract_and_check<span class="op">.</span><span class="fu">py</span> <span class="op">--</span>single <span class="op">--</span>url <span class="st">&quot;https://www.youtube.com/watch?v=VIDEO_ID&quot;</span> <span class="op">--</span>proxy-mode none <span class="op">--</span>spellcheck-engine none</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># 앱 릴리즈 빌드</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">cd</span> c<span class="op">:/</span>Users<span class="op">/</span>User<span class="op">/</span>vibeCoding<span class="op">/</span>YOUTUBE<span class="op">/</span>MATH<span class="op">/</span>MathChatbotAndroid</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="va">$env</span><span class="op">:</span><span class="va">JAVA_HOME</span><span class="op">=</span><span class="st">&#39;C:/Program Files/Android/Android Studio/jbr&#39;</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="op">./</span>gradlew<span class="op">.</span><span class="fu">bat</span> assembleRelease</span></code></pre></div>
+<h2 id="빠른-점검-포인트">빠른 점검 포인트</h2>
+<ul>
+<li>교정 미적용: OPENAI_API_KEY, report.json 의 spellcheck.reason
+확인</li>
+<li>검색 결과 부족: math_topics.json 생성 여부, assets 복사 여부,
+searchText 내용 확인</li>
+<li>링크 이상: sourceUrl 의 기존 t 파라미터 제거 여부와
+buildTimestampUrl 결과 확인</li>
+<li>앱 데이터 없음: loadTopics() 예외 여부와 assets 파일 구조 확인</li>
+</ul>
+<h2 id="빌드-메모">빌드 메모</h2>
+<ul>
+<li>versionCode 는 릴리즈마다 1씩 증가</li>
+<li>versionName 은 태그와 맞추는 편이 관리에 유리</li>
+<li>RELEASE_* 4개가 모두 없으면 unsigned release 빌드</li>
+<li>local.properties 또는 환경 변수에서 서명값을 읽음</li>
+</ul>
+<h2 id="운영-원칙">운영 원칙</h2>
+<ul>
+<li>.env, keystore, 비밀번호는 커밋 금지</li>
+<li>generated 는 재생성 가능한 산출물</li>
+<li>앱은 오프라인 우선 구조 유지</li>
+</ul>
+</body>
+</html>
